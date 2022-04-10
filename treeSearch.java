@@ -1,125 +1,170 @@
 package busManagement;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class treeSearch<Cost> {
-	private static class ternaryNode<Cost>{
-		 private char c;
-		 private Cost cost;
-		 private ternaryNode<Cost> right;
-		 private ternaryNode<Cost> middle;
-		 private ternaryNode<Cost> left;
-	}
-	private int size;
-	private static final int R = 256;
-	private ternaryNode root = new ternaryNode();
-	public boolean occurence(String key) {
-		if(null==key) {
-			return false;
-		}
-		
-		return find(key)!=null;
-	}
-	public Cost find(String key) {
-		if(null==key||0==key.length()) {
-			return null;
-		}
-		ternaryNode<Cost> c = find(key, root, 0);
-		System.out.print(""+c);
-		if(null==c) {
-			return null;
-		}
-		else {
-			return c.cost;
-		}
-	}
-	private ternaryNode<Cost> find(String key, ternaryNode<Cost> c, int number){
-		if(null==c) {
-			return null;
-		}
-		System.out.print(""+c);
-		char Char = key.charAt(number);
-		if(c.c<Char) {
-			return find(key,c.right, number);
-		}
-		else if(c.c> Char) {
-			return find( key,c.left, number);
-		}
-		
-		else if(key.length()-1>number) {
-			return find( key,c.middle, number+1);
-			
-		}
-		else {
-			return c;
-		}
-	}
-	public LinkedList<String> keysPresent(String title){
-		if(title=="") {
-			return null;
-		}
-		LinkedList<String> presentList = new LinkedList<String>();
-		ternaryNode<Cost> c = find( title,root, 0);
-		System.out.print(""+c);
-		if(null==c) {
-			return presentList;
-		}
-		else if(null!=c.cost) {
-			presentList.add(title);
-		}
-		gather(c.middle, presentList, new StringBuilder(title));
-		return presentList;
-	}
-	private void gather(ternaryNode<Cost> c, LinkedList<String> presentList, StringBuilder title) {
-		if (null==c) {
-			return;
-		}
-		System.out.print(""+c);
+public class treeSearch<stop> {
+	 private static class TrieNode<stop> 
+	  {
+			private char c;                        	   // character
+	        private TrieNode<stop> left; 			   //left subtrie
+	        private TrieNode<stop> mid;			   //mid subtrie
+	        private TrieNode<stop> right;			   //right subtrie
+	        private stop stop;                         // value associated with string
+	  }
 
-		gather(c.left, presentList, title);
-		if(null!=c.cost) {
-			presentList.add(title.toString() + c.c);
-			if(null!=c.cost) {
-				presentList.add(title.toString() + c.c);
-				
-			}
-			gather(c.middle, presentList, title.append(c.c));
-			title.deleteCharAt(title.length()-1);
-			gather(c.right, presentList, title);
-		}
-	}
-	public int size() {
-		return size;
-	}
-	public void set(Cost cost, String key) {
-		if(!occurence(key)) {
-			size++;
-		}
-		root=set(key, root, 0, cost);
-	}
-	private ternaryNode<Cost> set(String key, ternaryNode<Cost> c, int number, Cost cost){
-		char Char = key.charAt(number);
-		if(null==c) {
-			c = new ternaryNode<Cost>();
-			c.c = Char;
-		}
-		System.out.print(""+c);
+	  /* 
+	   * a pointer to the start of your trie
+	   */
+	  private static TrieNode root = new TrieNode();
+	  private static final int R = 256; 
+	  private int size; 
 
-		if(c.c<Char) {
-			return set(key,c.right, number, cost);
-		}
-		else if(c.c> Char) {
-			return set( key,c.left, number, cost);
-		}
-		
-		else if(key.length()-1>number) {
-			return set( key,c.middle, number+1, cost);
-			
-		}
-		else {
-			c.cost=cost;
-		}
-		return c;
-	}
+	  /*
+	   * Returns the number of words in the trie
+	   */
+	  public int size() 
+	  {
+	    return size; 
+	  }
+
+	  /*
+	   * returns true if the word is in the trie, false otherwise
+	   */
+	  public boolean contains(String key) 
+	  {
+		  if (key == null)
+	          return false;
+	 
+	      return get(key) != null;
+	  }
+
+	  /*
+	   * return the value stored in a node with a given key, returns null if word is not in trie
+	   */
+	  public stop get(String key) 
+	  {
+		  //The key is the word made up of chars
+		  //Each node has a char 
+		  //The node with the last char in the key (which is a word), has the value 
+		  
+	      if (key == null) 
+	      {
+	          return null; 
+	      }
+	      
+	      if (key.length() == 0) 
+	      {
+	    	  return null; 
+	      }
+	    	  
+	      TrieNode<stop> x = get(root, key, 0);
+	      
+	      if (x == null) 
+	    	  return null;
+	      
+	      return x.stop;
+
+	  }
+	  
+	  private TrieNode<stop> get(TrieNode<stop> x, String key, int d) 
+	  {
+	      if (x == null)
+		  {
+	    	  return null;
+		  }
+	      
+	      char c = key.charAt(d);
+	      
+	      if (c < x.c)              
+	    	  return get(x.left,  key, d);
+	      
+	      else if (c > x.c)
+	    	  return get(x.right, key, d);
+	      
+	      else if (d < key.length() - 1)
+	    	  return get(x.mid,   key, d+1);
+	      
+	      else
+	    	  return x;
+	  }
+
+	  /*
+	   * stores the Value val in the node with the given key
+	   */
+	  public void put(String key, stop stop) 
+	  {
+	      if (!contains(key)) 
+	    	  size++;
+	      root = put(root, key, stop, 0);
+	  }
+
+	  private TrieNode<stop> put(TrieNode<stop> x, String key, stop stop, int d) 
+	  {
+	      char c = key.charAt(d);
+	      if (x == null) 
+	      {
+	          x = new TrieNode<stop>();
+	          x.c = c;
+	      }
+	      
+	      if (c < x.c)              
+	    	  x.left  = put(x.left,  key, stop, d);
+	      
+	      else if (c > x.c)               
+	    	  x.right = put(x.right, key, stop, d);
+	      
+	      else if (d < key.length() - 1)  
+	    	  x.mid   = put(x.mid,   key, stop, d+1);
+	      
+	      else                            
+	    	  x.stop   = stop;
+	      
+	      return x;
+	  }
+	  
+	  /*
+	   * returns the linked list containing all the keys present in the trie
+	   * that start with the prefix passes as a parameter, sorted in alphabetical order
+	   */ 
+	  public LinkedList<String> keysWithPrefix(String prefix) 
+	  {
+		  if (prefix == "") 
+		  {
+	          return null; 
+	      }
+	      
+		  LinkedList<String> list = new LinkedList<String>();
+	      
+		  TrieNode<stop> x = get(root, prefix, 0);
+	      
+	      if (x == null) 
+	    	  return list;
+	     
+	      if (x.stop != null) 
+	    	  list.add(prefix);
+	      
+	      collect(x.mid, new StringBuilder(prefix), list);
+	      
+	      return list; 
+	  }
+	  
+	  // all keys in subtrie rooted at x with given prefix
+	  private void collect(TrieNode<stop> x, StringBuilder prefix, LinkedList<String> list) 
+	  {
+	      if (x == null) 
+	    	  return;
+	      
+	      collect(x.left,  prefix, list);
+	      
+	      if (x.stop != null) 
+	    	  list.add(prefix.toString() + x.c);
+	      
+	      collect(x.mid,   prefix.append(x.c), list);
+	      
+	      prefix.deleteCharAt(prefix.length() - 1);
+	      
+	      collect(x.right, prefix, list);
+	  }
 
 }
